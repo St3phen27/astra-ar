@@ -3,20 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Experiencia AR</title>
+    <title>Astra — Experiencia AR</title>
 
-    <!-- =========================================================
-         LIBRERÍAS AR (cargadas por CDN, no hace falta instalar nada)
-         ========================================================= -->
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
-    <!-- Tipografías -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Librería para generar el QR en la vista de PC -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -25,23 +17,10 @@
             margin: 0; padding: 0;
             background: #0a0a0a;
             color: #f3f0ea;
-            overflow-x: hidden;
+            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            height: 100%;
         }
-
-        /* =========================================================
-           VISTA DESKTOP — se muestra solo en PC
-           ========================================================= */
-        #desktop-view {
-            display: none;
-            min-height: 100vh;
-            padding: 60px 40px;
-            background:
-                radial-gradient(circle at 20% 10%, rgba(180,140,90,0.12) 0%, transparent 50%),
-                radial-gradient(circle at 80% 90%, rgba(90,120,180,0.10) 0%, transparent 50%),
-                #0a0a0a;
-        }
-        #desktop-view.active { display: block; }
 
         .grain {
             position: fixed; inset: 0;
@@ -51,9 +30,20 @@
             background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
         }
 
+        /* =========================================================
+           VISTA DESKTOP (PC)
+           ========================================================= */
+        #desktop-view {
+            display: none;
+            min-height: 100vh;
+            padding: 60px 40px;
+            background: radial-gradient(circle at 20% 10%, rgba(180,140,90,0.12) 0%, transparent 50%), #0a0a0a;
+        }
+        #desktop-view.active { display: flex; align-items: center; justify-content: center; }
+
         .container {
             max-width: 1100px;
-            margin: 0 auto;
+            width: 100%;
             display: grid;
             grid-template-columns: 1.1fr 1fr;
             gap: 60px;
@@ -62,362 +52,118 @@
             z-index: 2;
         }
 
-        .eyebrow {
-            font-family: "JetBrains Mono", monospace;
-            font-size: 0.75rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            opacity: 0.55;
-            margin-bottom: 24px;
-        }
-        .eyebrow::before {
-            content: "";
-            display: inline-block;
-            width: 32px;
-            height: 1px;
-            background: currentColor;
-            vertical-align: middle;
-            margin-right: 14px;
-        }
         h1 {
             font-family: "Instrument Serif", serif;
             font-weight: 400;
             font-size: clamp(2.5rem, 5vw, 4.2rem);
             line-height: 1.05;
             margin: 0 0 24px;
-            letter-spacing: -0.02em;
         }
-        h1 em {
-            font-style: italic;
-            color: #d4b48a;
-        }
-        .lead {
-            font-size: 1.05rem;
-            line-height: 1.65;
-            opacity: 0.75;
-            max-width: 460px;
-            margin-bottom: 36px;
-        }
-        .steps {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 36px;
-            counter-reset: step;
-        }
-        .steps li {
-            counter-increment: step;
-            padding: 14px 0;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            font-size: 0.95rem;
-            opacity: 0.85;
-            display: flex;
-            gap: 16px;
-        }
-        .steps li:last-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .steps li::before {
-            content: counter(step, decimal-leading-zero);
-            font-family: "JetBrains Mono", monospace;
-            font-size: 0.8rem;
-            color: #d4b48a;
-            min-width: 28px;
-        }
-
-        .marker-card {
-            position: relative;
-            border-radius: 4px;
-            overflow: hidden;
-            background: #111;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
-        }
-        .marker-card img {
-            display: block;
-            width: 100%;
-            height: auto;
-        }
-        .marker-card::after {
-            content: "MARCADOR · APUNTA AQUÍ";
-            position: absolute;
-            top: 16px; left: 16px;
-            font-family: "JetBrains Mono", monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.2em;
-            background: rgba(0,0,0,0.7);
-            color: #d4b48a;
-            padding: 6px 10px;
-            backdrop-filter: blur(8px);
+        h1 em { color: #d4b48a; font-style: italic; }
+        
+        .steps { list-style: none; padding: 0; margin-bottom: 36px; }
+        .steps li { 
+            padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.08); 
+            font-size: 0.95rem; opacity: 0.8; 
         }
 
         .qr-block {
-            margin-top: 28px;
-            display: flex;
-            gap: 18px;
-            align-items: center;
-            padding: 18px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
+            display: flex; gap: 18px; align-items: center;
+            padding: 18px; background: rgba(255,255,255,0.03);
             border-radius: 4px;
         }
         #qrcode { background: #fff; padding: 8px; border-radius: 2px; }
-        #qrcode img, #qrcode canvas { display: block; }
-        .qr-label {
-            font-family: "JetBrains Mono", monospace;
-            font-size: 0.75rem;
-            line-height: 1.5;
-            opacity: 0.75;
-        }
-        .qr-label strong { color: #d4b48a; display: block; margin-bottom: 4px; font-weight: 500; }
 
-        @media (max-width: 800px) {
-            .container { grid-template-columns: 1fr; gap: 40px; }
-        }
+        .marker-card { border-radius: 4px; overflow: hidden; background: #111; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+        .marker-card img { width: 100%; display: block; }
 
         /* =========================================================
-           VISTA MOBILE / AR
+           VISTA MOBILE (Redirección)
            ========================================================= */
-        #ar-view {
+        #mobile-landing {
             display: none;
-            position: fixed;
-            inset: 0;
-        }
-        #ar-view.active { display: block; }
-
-        #start-overlay {
             position: fixed; inset: 0;
             background: #0a0a0a;
-            color: #f3f0ea;
-            display: flex; flex-direction: column;
+            z-index: 10;
+            flex-direction: column;
             align-items: center; justify-content: center;
             text-align: center;
             padding: 40px;
-            z-index: 9999;
         }
-        #start-overlay.hide { display: none; }
-        #start-overlay h2 {
-            font-family: "Instrument Serif", serif;
-            font-weight: 400;
-            font-size: 2.4rem;
-            margin: 0 0 16px;
-            line-height: 1.1;
-        }
-        #start-overlay h2 em { color: #d4b48a; font-style: italic; }
-        #start-overlay p {
-            opacity: 0.7;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            max-width: 320px;
-            margin: 0 0 40px;
-        }
-        #start-btn {
-            background: #f3f0ea;
-            color: #0a0a0a;
-            border: none;
-            padding: 18px 36px;
-            font-family: "JetBrains Mono", monospace;
-            font-size: 0.85rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: transform 0.2s ease;
-        }
-        #start-btn:active { transform: scale(0.97); }
+        #mobile-landing.active { display: flex; }
 
-        #scanning-hint {
-            position: fixed;
-            bottom: 40px; left: 0; right: 0;
-            text-align: center;
-            color: #fff;
-            font-family: "JetBrains Mono", monospace;
-            font-size: 0.75rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: 100;
-            pointer-events: none;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+        #mobile-landing h2 {
+            font-family: "Instrument Serif", serif;
+            font-size: 2.8rem; margin: 0 0 20px; font-weight: 400;
         }
-        #scanning-hint.show { opacity: 0.9; }
+        #mobile-landing p { opacity: 0.6; line-height: 1.6; margin-bottom: 40px; max-width: 280px; }
+
+        #start-btn {
+            background: #f3f0ea; color: #0a0a0a; border: none;
+            padding: 20px 40px; font-family: "JetBrains Mono", monospace;
+            font-size: 0.9rem; letter-spacing: 0.1em;
+            text-transform: uppercase; cursor: pointer; border-radius: 4px;
+        }
+
+        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <div class="grain"></div>
 
-<!-- ==================================================================
-     VISTA PARA PC
-     ================================================================== -->
 <div id="desktop-view">
     <div class="container">
         <div>
-            <div class="eyebrow">Realidad Aumentada</div>
             <h1>Escanea, <em>observa</em>,<br>déjate llevar.</h1>
-            <p class="lead">
-                Esta experiencia está pensada para tu celular. Abre la página desde tu móvil
-                y apunta la cámara hacia la imagen marcador para ver el video con efecto de profundidad.
-            </p>
-            <ol class="steps">
-                <li>Abre esta misma página desde tu celular.</li>
-                <li>Permite el acceso a la cámara cuando lo solicite.</li>
-                <li>Apunta el lente hacia la imagen de la derecha.</li>
-            </ol>
+            <ul class="steps">
+                <li>1. Abre esta página en tu celular</li>
+                <li>2. Escanea el QR de abajo</li>
+                <li>3. Apunta al marcador de la derecha</li>
+            </ul>
             <div class="qr-block">
                 <div id="qrcode"></div>
-                <div class="qr-label">
-                    <strong>Escanea este código</strong>
-                    para abrir la experiencia<br>directamente en tu celular.
+                <div style="font-family: 'JetBrains Mono'; font-size: 0.7rem; opacity: 0.6;">
+                    <strong>QR DE ACCESO</strong><br>Escanea para iniciar
                 </div>
             </div>
         </div>
         <div class="marker-card">
-            <img src="./assets/intro.jpg" alt="Imagen marcador">
+            <img src="./assets/intro.jpg" alt="Marcador">
         </div>
     </div>
 </div>
 
-<!-- ==================================================================
-     VISTA AR (móvil)
-     ================================================================== -->
-<div id="ar-view">
-    <!-- Pantalla de inicio: indispensable para que iOS permita audio + video -->
-    <div id="start-overlay">
-        <h2>Toca para <em>iniciar</em></h2>
-        <p>Vas a necesitar permitir el acceso a la cámara. Apunta luego hacia la imagen marcador.</p>
-        <button id="start-btn">Iniciar experiencia</button>
-    </div>
-
-    <div id="scanning-hint">Apunta hacia el marcador</div>
-
-    <a-scene
-        mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: no;"
-        color-space="sRGB"
-        renderer="colorManagement: true, physicallyCorrectLights"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false">
-
-        <a-assets>
-            <video id="ar-video"
-                   src="./assets/video.mp4"
-                   preload="auto"
-                   loop
-                   playsinline
-                   webkit-playsinline
-                   crossorigin="anonymous"></video>
-            <img id="mask-img" src="./assets/mask.jpg" crossorigin="anonymous">
-            <img id="frame-img" src="./assets/frame.png" crossorigin="anonymous">
-        </a-assets>
-
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <!-- ===== CONTENEDOR DEL MARCADOR 0 =====
-             Si tienes más marcadores compilados en el .mind,
-             puedes duplicar este bloque y poner targetIndex: 1, 2, etc.
-        -->
-        <a-entity id="target-0" mindar-image-target="targetIndex: 0">
-
-            <!-- CAPA 1: MÁSCARA (atrás) -->
-            <!-- Se ubica detrás del video. Cuando muevas la cámara,
-                 esta capa se moverá MÁS LENTO visualmente, dando profundidad. -->
-            <a-plane
-                src="#mask-img"
-                position="0 0 -0.02"
-                height="0.6"
-                width="1"
-                rotation="0 0 0"
-                material="transparent: true; alphaTest: 0.1; shader: flat">
-            </a-plane>
-
-            <!-- CAPA 2: VIDEO (medio) -->
-            <a-video
-                id="video-plane"
-                src="#ar-video"
-                position="0 0 0"
-                height="0.6"
-                width="1"
-                rotation="0 0 0">
-            </a-video>
-
-            <!-- CAPA 3: MARCO (adelante) -->
-            <!-- Esta capa se moverá MÁS RÁPIDO visualmente al inclinar la cámara,
-                 completando el efecto parallax. -->
-            <a-plane
-                src="#frame-img"
-                position="0 0 0.02"
-                height="0.65"
-                width="1.05"
-                rotation="0 0 0"
-                material="transparent: true; alphaTest: 0.01; shader: flat">
-            </a-plane>
-
-        </a-entity>
-    </a-scene>
+<div id="mobile-landing">
+    <h2>Astra <em>AR</em></h2>
+    <p>Para una mejor experiencia, asegúrate de estar en un lugar iluminado.</p>
+    <button id="start-btn">Entrar a la cámara</button>
 </div>
 
 <script>
-    // =========================================================
-    // DETECCIÓN DE DISPOSITIVO
-    // =========================================================
     function isMobile() {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
             || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent));
     }
 
+    const desktop = document.getElementById('desktop-view');
+    const mobile = document.getElementById('mobile-landing');
+
     if (isMobile()) {
-        // ----- MODO MÓVIL: vista AR -----
-        document.getElementById('ar-view').classList.add('active');
-
-        const startBtn = document.getElementById('start-btn');
-        const startOverlay = document.getElementById('start-overlay');
-        const scanningHint = document.getElementById('scanning-hint');
-        const video = document.getElementById('ar-video');
-        const target = document.getElementById('target-0');
-        const sceneEl = document.querySelector('a-scene');
-
-        startBtn.addEventListener('click', async () => {
-            // 1) "Desbloquear" el video con un gesto del usuario (requisito de iOS)
-            try {
-                video.muted = true;
-                await video.play();
-                video.pause();
-                video.currentTime = 0;
-                video.muted = false; // restablecer si quieres audio
-            } catch (e) {
-                console.warn('No se pudo precargar el video:', e);
-            }
-
-            // 2) Iniciar MindAR
-            startOverlay.classList.add('hide');
-            const arSystem = sceneEl.systems["mindar-image-system"];
-            arSystem.start();
-
-            // 3) Mostrar pista de escaneo
-            setTimeout(() => scanningHint.classList.add('show'), 600);
+        mobile.classList.add('active');
+        
+        document.getElementById('start-btn').addEventListener('click', () => {
+            // REDIRECCIÓN A TU OTRO ARCHIVO
+            window.location.href = 'mobile.html';
         });
-
-        // Cuando se detecta el marcador, reproducir el video
-        target.addEventListener('targetFound', () => {
-            scanningHint.classList.remove('show');
-            video.play().catch(err => console.warn('Play fallido:', err));
-        });
-
-        // Cuando se pierde el marcador, pausar
-        target.addEventListener('targetLost', () => {
-            video.pause();
-            scanningHint.classList.add('show');
-        });
-
     } else {
-        // ----- MODO PC: vista informativa -----
-        document.getElementById('desktop-view').classList.add('active');
-
-        // Generar QR con la URL actual para que se escanee desde el móvil
+        desktop.classList.add('active');
+        
+        // Generar QR para PC
         new QRCode(document.getElementById('qrcode'), {
             text: window.location.href,
-            width: 110,
-            height: 110,
-            colorDark: "#0a0a0a",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.M
+            width: 100, height: 100,
+            colorDark: "#000000", colorLight: "#ffffff"
         });
     }
 </script>
